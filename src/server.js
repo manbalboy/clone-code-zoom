@@ -1,3 +1,5 @@
+import http from 'http';
+import WebSocet from 'ws';
 import express from 'express';
 
 const app = express();
@@ -10,4 +12,18 @@ app.get('/*', (req, res) => res.redirect('/'));
 
 const handleListen = () => console.log('Listening on http://localhost:3000');
 
-app.listen(3000, handleListen);
+const server = http.createServer(app);
+const wss = new WebSocet.Server({ server });
+
+wss.on('connection', socket => {
+	socket.on('close', () => {
+		console.log('Disconnected from Browser');
+	});
+
+	socket.on('message', message => {
+		console.log(`${message}`);
+	});
+
+	socket.send('hello');
+});
+server.listen(3000, handleListen);
